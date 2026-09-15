@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weird Weather — Interactive English Lesson</title>
+<style>
+:root{
+  --sky:#dff4ff;
+  --sky2:#f4fbff;
+  --card:rgba(255,255,255,.94);
+  --ink:#18354a;
+  --muted:#5f7685;
+  --blue:#3f8fc4;
+  --blue-dark:#21658f;
+  --cloud:#ffffff;
+  --rain:#78bde4;
+  --sun:#f5c95d;
+  --storm:#687b91;
+  --green:#4c9b7a;
+  --red:#c95e67;
+  --line:#cfe3ee;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--ink);
+  line-height:1.6;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  background:
+    radial-gradient(circle at 15% 15%,rgba(255,255,255,.95) 0 4px,transparent 5px),
+    radial-gradient(circle at 85% 30%,rgba(255,255,255,.7) 0 3px,transparent 4px),
+    linear-gradient(180deg,#cfefff 0%,#eaf8ff 42%,#f7fbfd 100%);
+  min-height:100vh;
+}
+body:before{
+  content:"";
+  position:fixed;inset:0;pointer-events:none;opacity:.25;
+  background-image:linear-gradient(115deg,transparent 0 48%,rgba(82,157,201,.12) 49%,transparent 50%);
+  background-size:90px 90px;
+}
+.wrap{max-width:1080px;margin:auto;position:relative}
+header{
+  position:relative;
+  overflow:hidden;
+  padding:46px 20px 40px;
+  background:
+    linear-gradient(180deg,rgba(72,158,208,.9),rgba(112,190,226,.72)),
+    linear-gradient(135deg,#73c3eb,#e4f7ff);
+  border-bottom:1px solid #b9dcea;
+  color:white;
+}
+header:before,header:after{
+  content:"";
+  position:absolute;
+  background:rgba(255,255,255,.9);
+  border-radius:999px;
+  filter:blur(.2px);
+}
+header:before{width:250px;height:55px;right:-30px;top:35px;box-shadow:-65px 15px 0 5px rgba(255,255,255,.9),-120px 5px 0 -4px rgba(255,255,255,.9)}
+header:after{width:190px;height:45px;left:-45px;bottom:25px;box-shadow:55px 9px 0 7px rgba(255,255,255,.88),105px 2px 0 -3px rgba(255,255,255,.88)}
+.kicker{
+  text-transform:uppercase;letter-spacing:.16em;font-size:12px;font-weight:800;
+  color:#eaf8ff;position:relative;z-index:1
+}
+h1{
+  font-size:clamp(36px,6vw,62px);line-height:.98;margin:10px 0 14px;
+  letter-spacing:-.04em;position:relative;z-index:1;
+  text-shadow:0 3px 14px rgba(25,77,106,.18)
+}
+.subtitle{
+  max-width:760px;color:#f7fdff;font-size:17px;position:relative;z-index:1
+}
+.progress{
+  margin-top:24px;background:rgba(255,255,255,.35);border-radius:99px;
+  height:11px;overflow:hidden;position:relative;z-index:1
+}
+.progress span{
+  display:block;height:100%;width:0;background:linear-gradient(90deg,#fff5b1,#ffffff);
+  border-radius:99px;transition:.35s
+}
+main{padding:28px 20px 75px}
+.card{
+  position:relative;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:27px;
+  margin:20px 0;
+  box-shadow:0 12px 35px rgba(47,105,135,.10);
+  overflow:hidden;
+}
+.card:before{
+  content:"";
+  position:absolute;right:-32px;top:-38px;width:105px;height:105px;
+  border-radius:50%;background:rgba(207,239,255,.45)
+}
+.card h2,.card h3,.card p,.card div,.card ul,.card ol,.card button{position:relative}
+.card h2{margin:0 0 8px;font-size:26px;color:#174e70}
+.card h2:before{content:"☁";font-size:23px;margin-right:9px;color:#5ea8cf}
+h3{font-size:18px;margin-bottom:7px;color:#245f80}
+.rule{
+  background:linear-gradient(135deg,#eef9ff,#f7fcff);
+  border-left:5px solid var(--blue);
+  padding:14px 17px;border-radius:14px;margin:16px 0;
+  box-shadow:inset 0 0 0 1px #d8edf7
+}
+.rule b{color:#21658f}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.word{
+  background:linear-gradient(145deg,#f9fdff,#edf8fd);
+  border:1px solid var(--line);border-radius:15px;padding:14px;
+}
+.word b{display:block;color:#286f96;margin-bottom:3px}
+button,.check{
+  border:0;border-radius:12px;padding:10px 16px;font-weight:800;cursor:pointer;
+  background:linear-gradient(135deg,#3f94c8,#2878ab);color:white;
+  box-shadow:0 5px 13px rgba(40,120,171,.18);
+  transition:.18s transform,.18s box-shadow
+}
+button:hover{transform:translateY(-1px);box-shadow:0 7px 17px rgba(40,120,171,.25)}
+button.secondary{background:#e8f4fa;color:#285c78;box-shadow:none}
+.options{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.option{
+  padding:10px 14px;border:1px solid var(--line);border-radius:11px;background:white;
+  cursor:pointer;transition:.15s
+}
+.option:hover{border-color:#8fc5df;background:#f5fbfe}
+.option.selected{background:#dff2fc;border-color:var(--blue);box-shadow:0 0 0 2px #d0ebf7}
+.option.correct{background:#e1f3e9;border-color:var(--green)}
+.option.wrong{background:#f9e2e4;border-color:var(--red)}
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.matchitem{
+  padding:12px;border:1px solid var(--line);border-radius:12px;background:white;cursor:pointer;
+  transition:.15s
+}
+.matchitem:hover{background:#f2faff;border-color:#8fc5df}
+.matchitem.selected{outline:3px solid #b9dff0;background:#eaf7fd}
+.matchitem.matched{background:#e2f2e9;border-color:var(--green);cursor:default}
+.q{padding:15px 0;border-bottom:1px solid #e0edf3}
+select,input[type=text]{
+  padding:9px 11px;border:1px solid #c8dce7;border-radius:9px;background:white;
+  font-size:15px;color:var(--ink)
+}
+select:focus,input[type=text]:focus{outline:3px solid #d9effa;border-color:var(--blue)}
+.answer{font-weight:800;margin-top:8px}
+.hidden{display:none}
+.feedback{margin-top:10px;font-weight:800;color:#28627f}
+.reading{
+  font-size:17px;background:linear-gradient(135deg,#fafdff,#eef8fc);
+  border:1px solid #d9eaf2;border-radius:17px;padding:20px
+}
+.reading p:first-child:before{content:"🌦️";margin-right:8px}
+.score{
+  font-size:22px;font-weight:900;color:#23658a;
+  background:#edf8fd;border-radius:14px;padding:12px 15px
+}
+.small{font-size:13px;color:var(--muted)}
+footer{
+  text-align:center;color:#648090;padding:25px 20px 35px;
+  background:rgba(255,255,255,.45);border-top:1px solid #d4e8f1
+}
+@media(max-width:700px){
+  .card{padding:21px;border-radius:19px}
+  .matchgrid{grid-template-columns:1fr}
+  header{padding-top:35px}
+}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<div class="kicker">Unit 1e · Weird Weather</div>
+<h1>Strange Weather Lab</h1>
+<div class="subtitle">Weather phenomena, disaster vocabulary, idioms and the three past tenses. Work through the tasks, check your answers and finish with the speaking challenge.</div>
+<div class="weather-strip" aria-label="Weather icons">
+  <span>☀️ Sunny</span>
+  <span>🌧️ Rainy</span>
+  <span>⛈️ Stormy</span>
+  <span>🌪️ Extreme</span>
+  <span>❄️ Cold</span>
+</div>
+<style>
+.weather-strip{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;position:relative;z-index:1
+}
+.weather-strip span{
+  padding:7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);
+  backdrop-filter:blur(5px);font-size:13px;font-weight:700
+}
+</style>
+
+<div class="progress"><span id="bar"></span></div>
+</div>
+</header>
+
+<main class="wrap">
+
+<section class="card">
+<h2>1. Warm-up — Weather from memory</h2>
+<p class="small">Choose the best word. Think first — don't translate every sentence.</p>
+<div id="warm"></div>
+<button onclick="checkWarm()">Check</button>
+<div id="warmfb" class="feedback"></div>
+</section>
+
+<section class="card">
+<h2>2. New vocabulary — Match</h2>
+<p>Match each new word with its meaning. Click a word, then click its meaning.</p>
+<div class="matchgrid" id="matchWords"></div>
+<div id="matchMeanings" class="matchgrid"></div>
+<div id="matchfb" class="feedback"></div>
+<div class="small">Target words: phenomenon, forecast, hailstone, wildfire, lightning bolt, restore, witness, astonished, spin, above ground.</div>
+</section>
+
+<section class="card">
+<h2>3. New words in context</h2>
+<div class="rule"><b>Tip:</b> Don't learn isolated words. Learn the word + the situation where it naturally appears.</div>
+<div id="vocab"></div>
+<button onclick="checkVocab()">Check</button>
+<div id="vocabfb" class="feedback"></div>
+</section>
+
+<section class="card">
+<h2>4. Grammar — What happened first?</h2>
+<div class="rule">
+<b>Past Simple:</b> a finished event in the past.<br>
+<b>Past Perfect:</b> <b>had + V3</b> — an earlier completed event.<br>
+<b>Past Perfect Continuous:</b> <b>had been + V-ing</b> — an earlier activity in progress / duration.
+</div>
+<div id="grammar"></div>
+<button onclick="checkGrammar()">Check</button>
+<div id="grammarfb" class="feedback"></div>
+</section>
+
+<section class="card">
+<h2>5. Reading — The storm that changed the afternoon</h2>
+<p class="small">Read the original text. It uses vocabulary from this lesson and vocabulary from our previous disaster/weather work.</p>
+<div class="reading">
+<p>On Saturday afternoon, Maya and her family were visiting a small coastal town. The weather forecast had promised sunshine, but by midday the sky had become dark and overcast. Strong winds had been blowing for almost an hour when the first hailstones hit the windows.</p>
+<p>Maya had never seen weather like that before. A powerful storm moved across the coast, and a lightning bolt struck a tree near the road. Luckily, nobody was hurt. The emergency services arrived quickly because several residents had called for help.</p>
+<p>By the time the family reached a safe building, the rain had become extremely heavy. Water was rising in the streets, so the police told people to stay indoors. Maya later learned that the town had experienced floods before, but this storm had caused much more damage.</p>
+<p>When the storm finally passed, the residents came outside. The streets were covered with branches and mud. Everyone was in bad shape, but there was a silver lining: neighbours worked together to clean the streets and restore damaged homes. Maya was astonished by how quickly people had started to help.</p>
+</div>
+
+<h3>Reading check</h3>
+<div id="reading"></div>
+<button onclick="checkReading()">Check</button>
+<div id="readingfb" class="feedback"></div>
+</section>
+
+<section class="card">
+<h2>6. Weather idioms — Match + use</h2>
+<div class="grid">
+<div class="word"><b>raining cats and dogs</b> raining very heavily</div>
+<div class="word"><b>every cloud has a silver lining</b> something positive can come from a bad situation</div>
+<div class="word"><b>fair-weather friend</b> someone who is around only when things are easy</div>
+<div class="word"><b>in a fog</b> confused or unable to think clearly</div>
+<div class="word"><b>under the weather</b> feeling slightly ill</div>
+</div>
+<div id="idioms"></div>
+<button onclick="checkIdioms()">Check</button>
+<div id="idiomsfb" class="feedback"></div>
+</section>
+
+<section class="card">
+<h2>7. Final challenge — Be the weather reporter</h2>
+<div class="rule"><b>Mission:</b> Imagine a strange weather event has just happened in your town. Speak for 60–90 seconds.</div>
+<p>You must use:</p>
+<ul>
+<li>at least <b>3 new words</b></li>
+<li>at least <b>2 old weather/disaster words</b></li>
+<li>one <b>Past Perfect</b> sentence</li>
+<li>one <b>Past Perfect Continuous</b> sentence</li>
+<li>one idiom</li>
+</ul>
+<p><b>Useful opening:</b> “Good evening. We are in the centre of the town, where a very unusual weather event has just happened…”</p>
+<button class="secondary" onclick="showModel()">Show a model</button>
+<div id="model" class="hidden reading">
+<p>Good evening. We are in the centre of the town, where a very unusual storm has just happened. The weather forecast had predicted light rain, but strong winds had been blowing since the morning. By the time the storm arrived, the residents had already moved to safe buildings. Hailstones covered the streets, and one lightning bolt struck a tree. The emergency services worked quickly, although they had struggled to cope with the amount of damage. Everyone is exhausted and a little under the weather, but every cloud has a silver lining: neighbours are helping to restore the damaged houses.</p>
+</div>
+</section>
+
+<section class="card">
+<h2>Exit ticket</h2>
+<p>Before you finish, answer these without looking back:</p>
+<ol>
+<li>What is the difference between <b>Past Perfect</b> and <b>Past Perfect Continuous</b>?</li>
+<li>Give two new weather words from today's lesson.</li>
+<li>Use <b>storm surge</b>, <b>hailstone</b> or <b>wildfire</b> in a sentence.</li>
+</ol>
+<div class="score" id="total">Complete the interactive tasks to see your score.</div>
+</section>
+</main>
+<footer>Weird Weather · Interactive English Practice</footer>
+
+<script>
+const warmData=[
+["A sudden rise of sea water caused by a storm is a …","storm surge",["drought","thick fog"] ],
+["Small balls of ice that fall from the sky are …","hail",["exhaust fumes","acid rain"]],
+["A long period with little or no rain is a …","drought",["flood","tornado"]],
+["A huge rotating column of air is a …","tornado",["hail","fog"]],
+["A very large amount of water covering normally dry land is a …","flood",["wildfire","lightning"]]
+];
+let scores={warm:0,vocab:0,grammar:0,reading:0,idioms:0};
+function buildWarm(){
+let el=document.getElementById("warm");
+warmData.forEach((x,i)=>{
+let d=document.createElement("div");d.className="q";d.innerHTML=`<b>${i+1}. ${x[0]}</b><div class="options">${[x[1],...x[2]].sort(()=>Math.random()-.5).map(a=>`<span class="option" data-q="${i}" data-a="${a}" onclick="pick(this)">${a}</span>`).join("")}</div>`;el.appendChild(d);
+});}
+function pick(el){if(el.parentElement.querySelector(".selected"))el.parentElement.querySelector(".selected").classList.remove("selected");el.classList.add("selected")}
+function checkWarm(){let s=0;document.querySelectorAll("#warm .q").forEach((q,i)=>{let p=q.querySelector(".selected");if(p&&p.dataset.a===warmData[i][1]){s++;p.classList.add("correct")}else if(p)p.classList.add("wrong")});scores.warm=s;document.getElementById("warmfb").textContent=`${s}/5 correct`;update();}
+const match=[
+["phenomenon","an unusual event or fact, especially in nature"],
+["forecast","a prediction of future weather"],
+["hailstone","a small ball of ice that falls from the sky"],
+["wildfire","a large uncontrolled fire in a natural area"],
+["lightning bolt","a single visible flash of lightning"],
+["restore","to repair something and return it to a good condition"],
+["witness","a person who sees an event happen"],
+["astonished","extremely surprised"],
+["spin","to turn around quickly"],
+["above ground","on or at the surface, not underground"]
+];
+let selectedWord=null,matched=0;
+function buildMatch(){
+let ws=document.getElementById("matchWords"),ms=document.getElementById("matchMeanings");
+match.forEach((x,i)=>{let a=document.createElement("div");a.className="matchitem";a.textContent=x[0];a.dataset.i=i;a.onclick=()=>selectWord(a);ws.appendChild(a);
+let b=document.createElement("div");b.className="matchitem";b.textContent=x[1];b.dataset.i=i;ms.appendChild(b);});
+[...ms.children].sort(()=>Math.random()-.5).forEach(x=>ms.appendChild(x));
+}
+function selectWord(el){if(el.classList.contains("matched"))return;document.querySelectorAll("#matchWords .selected").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");selectedWord=el.dataset.i;
+document.querySelectorAll("#matchMeanings .matchitem").forEach(m=>m.onclick=()=>{if(m.dataset.i===selectedWord){el.classList.add("matched");m.classList.add("matched");matched++;document.getElementById("matchfb").textContent=`Matched: ${matched}/10`;selectedWord=null}else{m.classList.add("wrong");setTimeout(()=>m.classList.remove("wrong"),400)}})}
+const vocab=[
+["The weather app gave an accurate ________ for tomorrow.","forecast"],
+["A huge ________ destroyed part of the forest during the hot, dry summer.","wildfire"],
+["The scientist studied a rare natural ________.","phenomenon"],
+["A ________ hit the roof during the storm.","hailstone"],
+["One bright ________ crossed the sky.","lightning bolt"],
+["The volunteers helped ________ the old building after the flood.","restore"],
+["A local ________ described what he had seen.","witness"],
+["The tourists were ________ when they saw fish falling from the sky.","astonished"]
+];
+function buildVocab(){let el=document.getElementById("vocab");vocab.forEach((x,i)=>{el.innerHTML+=`<div class="q">${i+1}. ${x[0].replace("______",`<select id="v${i}"><option value="">— choose —</option>${[x[1],...match.filter(m=>m[0]!==x[1]).slice(0,2).map(m=>m[0])].sort(()=>Math.random()-.5).map(a=>`<option>${a}</option>`).join("")}</select>`)}</div>`})}
+function checkVocab(){let s=0;vocab.forEach((x,i)=>{let e=document.getElementById("v"+i);if(e.value===x[1]){s++;e.style.borderColor="var(--good)"}else e.style.borderColor="var(--bad)"});scores.vocab=s;document.getElementById("vocabfb").textContent=`${s}/${vocab.length} correct`;update()}
+const grammar=[
+["The rain ________ for two hours before the roads flooded.","had been falling",["fell","had fallen"]],
+["When we arrived, the tornado ________ already ________.","had","passed",["was","passing"]],
+["The emergency services ________ quickly after the storm hit.","arrived",["had arrived","had been arriving"]],
+["The ground was wet because it ________ all night.","had been raining",["rained","had rained"]],
+["By the time the reporter came, residents ________ to safe buildings.","had moved",["moved","had been moving"]]
+];
+function buildGrammar(){let el=document.getElementById("grammar");grammar.forEach((x,i)=>{let opts=[x[1],...x[2]];let sentence=x[0].replace("________",`<select id="g${i}"><option value="">— choose —</option>${opts.sort(()=>Math.random()-.5).map(a=>`<option>${a}</option>`).join("")}</select>`).replace(" ________ "," ");el.innerHTML+=`<div class="q">${i+1}. ${sentence}</div>`})}
+function checkGrammar(){let s=0;grammar.forEach((x,i)=>{let e=document.getElementById("g"+i);if(e.value===x[1]){s++;e.style.borderColor="var(--good)"}else e.style.borderColor="var(--bad)"});scores.grammar=s;document.getElementById("grammarfb").textContent=`${s}/${grammar.length} correct`;update()}
+const reading=[
+["What had the weather forecast promised?","sunshine",["snow","a tornado","a drought"]],
+["What had been happening for almost an hour?","strong winds",["heavy snow","a flood","a wildfire"]],
+["Why did the emergency services arrive quickly?","Residents had called for help",["They had caused the storm","The police had arrested Maya","The forecast had changed"]],
+["What happened after the storm?","Neighbours worked together to restore damaged homes",["The town was evacuated forever","A wildfire started","The residents left the country"]]
+];
+function buildReading(){let el=document.getElementById("reading");reading.forEach((x,i)=>{el.innerHTML+=`<div class="q"><b>${i+1}. ${x[0]}</b><div class="options">${[x[1],...x[2]].sort(()=>Math.random()-.5).map(a=>`<span class="option" data-r="${i}" data-a="${a}" onclick="pickRead(this)">${a}</span>`).join("")}</div></div>`})}
+function pickRead(el){let p=el.parentElement.querySelector(".selected");if(p)p.classList.remove("selected");el.classList.add("selected")}
+function checkReading(){let s=0;document.querySelectorAll("#reading .q").forEach((q,i)=>{let p=q.querySelector(".selected");if(p&&p.dataset.a===reading[i][1]){s++;p.classList.add("correct")}else if(p)p.classList.add("wrong")});scores.reading=s;document.getElementById("readingfb").textContent=`${s}/${reading.length} correct`;update()}
+const idioms=[
+["It was ________ all evening, so the streets were full of water.","raining cats and dogs",["under the weather","in a fog"]],
+["Tom is a real ________: he disappears when you need help.","fair-weather friend",["silver lining","forecast"]],
+["I can't concentrate today. I'm completely ________.","in a fog",["raining cats and dogs","fair-weather friend"]],
+["After the journey, Anna felt ________.","under the weather",["in a fog","fair-weather friend"]],
+["The house was damaged, but ________: nobody was injured.","every cloud has a silver lining",["under the weather","raining cats and dogs"]]
+];
+function buildIdioms(){let el=document.getElementById("idioms");idioms.forEach((x,i)=>{el.innerHTML+=`<div class="q">${i+1}. ${x[0].replace("______",`<select id="i${i}"><option value="">— choose —</option>${[x[1],...x[2]].sort(()=>Math.random()-.5).map(a=>`<option>${a}</option>`).join("")}</select>`)}</div>`})}
+function checkIdioms(){let s=0;idioms.forEach((x,i)=>{let e=document.getElementById("i"+i);if(e.value===x[1]){s++;e.style.borderColor="var(--good)"}else e.style.borderColor="var(--bad)"});scores.idioms=s;document.getElementById("idiomsfb").textContent=`${s}/${idioms.length} correct`;update()}
+function showModel(){document.getElementById("model").classList.toggle("hidden")}
+function update(){let done=Object.values(scores).reduce((a,b)=>a+b,0);let max=5+8+5+4+5;document.getElementById("bar").style.width=(done/max*100)+"%";document.getElementById("total").textContent=`Interactive score: ${done}/${max}`;}
+buildWarm();buildMatch();buildVocab();buildGrammar();buildReading();buildIdioms();
+</script>
+</body>
+</html>
